@@ -1,5 +1,6 @@
 <template>
   <div class="pos">
+    <h1>POS系统</h1>
     <el-row>
       <el-col :span="7" class="pos-order" id="order-list">
         <el-tabs>
@@ -34,6 +35,17 @@
       <el-col :span="17">
         <div class="often-goods">
           <div class="title">常用商品</div>
+          <div class="often-goods-list">
+            <ul>
+              <li v-for="(goods,goodsId) in oftenGoods" :key="goodsId" @click="addOrderList(goods)">
+                <span>{{goods.goodsName}}</span>
+                <span class="o-price">￥{{goods.price}}元</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="often-goodss">
+          <div class="title">特色商品</div>
           <div class="often-goods-list">
             <ul>
               <li v-for="(goods,goodsId) in oftenGoods" :key="goodsId" @click="addOrderList(goods)">
@@ -129,10 +141,84 @@ export default {
     return {
       tableData: [],
       oftenGoods: [],
-      type0Goods: [],
-      type1Goods: [],
-      type2Goods: [],
-      type3Goods: [],
+      type0Goods: [
+        {
+          goodsId: 1,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '香辣鸡腿堡',
+          price: 18
+        },
+        {
+          goodsId: 2,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '田园鸡腿堡',
+          price: 15
+        }
+      ],
+      type1Goods: [
+        {
+          goodsId: 3,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '魔法鸡块',
+          price: 20
+        }
+      ],
+      type2Goods: [
+        {
+          goodsId: 4,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '和风汉堡',
+          price: 15
+        },
+        {
+          goodsId: 5,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '快乐全家桶',
+          price: 80
+        },
+        {
+          goodsId: 6,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '脆皮炸鸡腿',
+          price: 10
+        }
+      ],
+      type3Goods: [
+        {
+          goodsId: 7,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '可乐大杯',
+          price: 10
+        },
+        {
+          goodsId: 8,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '雪顶咖啡',
+          price: 18
+        },
+        {
+          goodsId: 9,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '大块鸡米花',
+          price: 15
+        },
+        {
+          goodsId: 10,
+          goodsImg:
+            'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2639729819,655685108&fm=27&gp=0.jpg',
+          goodsName: '香脆鸡柳',
+          price: 17
+        }
+      ],
       totalMoney: 0,
       totalCount: 0
     }
@@ -151,22 +237,22 @@ export default {
         console.log(error)
         alert('网络错误，自己看着办！ ')
       })
-    axios
-      .get(
-        'https://www.easy-mock.com/mock/5b8b30dbf032f03c5e71de7f/kuaican/typeGoods'
-      )
-      .then(response => {
-        console.log(response)
-        // this.oftenGoods=response.data;
-        this.type0Goods = response.data[0]
-        this.type1Goods = response.data[1]
-        this.type2Goods = response.data[2]
-        this.type3Goods = response.data[3]
-      })
-      .catch(error => {
-        console.log(error)
-        alert('网络错误，不能访问')
-      })
+    // axios
+    //   .get(
+    //     'https://www.easy-mock.com/mock/5b8b30dbf032f03c5e71de7f/kuaican/typeGoods'
+    //   )
+    //   .then(response => {
+    //     console.log(response)
+    //     // this.oftenGoods=response.data;
+    //     this.type0Goods = response.data[0]
+    //     this.type1Goods = response.data[1]
+    //     this.type2Goods = response.data[2]
+    //     this.type3Goods = response.data[3]
+    //   })
+    //   .catch(error => {
+    //     console.log(error)
+    //     alert('网络错误，不能访问')
+    //   })
   },
   methods: {
     // 添加订单列表的方法
@@ -276,6 +362,11 @@ export default {
   padding: 10px;
   margin: 10px;
   cursor: pointer;
+}
+
+.often-goodss {
+  clear: both;
+  padding-top: 30px;
 }
 
 .o-price {
