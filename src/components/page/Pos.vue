@@ -10,15 +10,21 @@
               <el-table-column prop="price" label="金额" width="60"></el-table-column>
               <el-table-column label="操作" width="100" fixed="right">
                 <template scope>
-                  <el-button type="text" size="small">删除</el-button>
-                  <el-button type="text" size="small">增加</el-button>
+                  <el-button type="text" size="small" @click="delSingleGoods(scope.row)">删除</el-button>
+                  <el-button type="text" size="small" @click="addOrderList(scope.row)">增加</el-button>
                 </template>
               </el-table-column>
             </el-table>
+            <div class="totalDiv">
+              <span>数量：</span>
+              {{totalCount}}
+              <span>金额：</span>
+              {{totalMoney}}元
+            </div>
             <div class="divBtn">
               <el-button type="warning">下单</el-button>
-              <el-button type="danger">删除</el-button>
-              <el-button type="success">结账</el-button>
+              <el-button type="danger" @click="delAllGoods()">删除</el-button>
+              <el-button type="success" @click="checkout">结账</el-button>
             </div>
           </el-tab-pane>
           <el-tab-pane label="下单">下单</el-tab-pane>
@@ -30,7 +36,7 @@
           <div class="title">常用商品</div>
           <div class="often-goods-list">
             <ul>
-              <li v-for="(goods,goodsId) in oftenGoods" :key="goodsId">
+              <li v-for="(goods,goodsId) in oftenGoods" :key="goodsId" @click="addOrderList(goods)">
                 <span>{{goods.goodsName}}</span>
                 <span class="o-price">￥{{goods.price}}元</span>
               </li>
@@ -41,7 +47,11 @@
           <el-tabs>
             <el-tab-pane label="汉堡">
               <ul class="cookList">
-                <li v-for="(items,goodsId) in type0Goods" :key="goodsId">
+                <li
+                  v-for="(items,goodsId) in type0Goods"
+                  :key="goodsId"
+                  @click="addOrderList(goods)"
+                >
                   <span class="foodImg">
                     <img :src="items.goodsImg" width="100%" />
                   </span>
@@ -54,7 +64,11 @@
             </el-tab-pane>
             <el-tab-pane label="小食">
               <ul class="cookList">
-                <li v-for="(items,goodsId) in type1Goods" :key="goodsId">
+                <li
+                  v-for="(items,goodsId) in type1Goods"
+                  :key="goodsId"
+                  @click="addOrderList(goods)"
+                >
                   <span class="foodImg">
                     <img :src="items.goodsImg" width="100%" />
                   </span>
@@ -67,7 +81,11 @@
             </el-tab-pane>
             <el-tab-pane label="饮料">
               <ul class="cookList">
-                <li v-for="(items,goodsId) in type2Goods" :key="goodsId">
+                <li
+                  v-for="(items,goodsId) in type2Goods"
+                  :key="goodsId"
+                  @click="addOrderList(goods)"
+                >
                   <span class="foodImg">
                     <img :src="items.goodsImg" width="100%" />
                   </span>
@@ -80,7 +98,11 @@
             </el-tab-pane>
             <el-tab-pane label="套餐">
               <ul class="cookList">
-                <li v-for="(items,goodsId) in type3Goods" :key="goodsId">
+                <li
+                  v-for="(items,goodsId) in type3Goods"
+                  :key="goodsId"
+                  @click="addOrderList(goods)"
+                >
                   <span class="foodImg">
                     <img :src="items.goodsImg" width="100%" />
                   </span>
@@ -110,7 +132,9 @@ export default {
       type0Goods: [],
       type1Goods: [],
       type2Goods: [],
-      type3Goods: []
+      type3Goods: [],
+      totalMoney: 0,
+      totalCount: 0
     }
   },
   created: function () {
@@ -144,24 +168,81 @@ export default {
         alert('网络错误，不能访问')
       })
   },
-  mounted: function () {
-    var orderHeight = document.body.clientHeight
-    // console.log(orderHeight)
-    document.getElementById('order-list').style.height = orderHeight + 'px'
-  },
   methods: {
+    // 添加订单列表的方法
     addOrderList (goods) {
-      // 商品是否存在于订单列表中
+      this.totalCount = 0 // 汇总数量清0
+      this.totalMoney = 0
       let isHave = false
+      // 判断是否这个商品已经存在于订单列表
       for (let i = 0; i < this.tableData.length; i++) {
-        if ((this.tableData[i].goodsId = goods.goodsId)) {
-          isHave = true
+        // console.log(this.tableData[i].goodsId)
+        if (this.tableData[i].goodsId === goods.goodsId) {
+          isHave = true // 存在
         }
       }
-      // 根据判断的值编写业务逻辑
+      // 根据isHave的值判断订单列表中是否已经有此商品
       if (isHave) {
+        // 存在就进行数量添加
         let arr = this.tableData.filter(o => o.goodsId === goods.goodsId)
         arr[0].count++
+        // console.log(arr)
+      } else {
+        // 不存在就推入数组
+        let newGoods = {
+          goodsId: goods.goodsId,
+          goodsName: goods.goodsName,
+          price: goods.price,
+          count: 1
+        }
+        this.tableData.push(newGoods)
+      }
+
+      this.getAllMoney()
+
+      // 进行数量和价格的汇总计算
+      this.tableData.forEach(element => {
+        this.totalCount += element.count
+        this.totalMoney = this.totalMoney + element.price * element.count
+      })
+    },
+    // 删除单个方法
+    delSingleGoods (goods) {
+      this.tableData = this.filter(o => o.goodsId !== goods.goodsId)
+      this.getAllMoney()
+    },
+
+    // 删除全部方法
+    delAllGoods () {
+      this.tableData = []
+      this.totalCount = 0
+      this.totalMoney = 0
+    },
+
+    // 模拟结账
+    checkout () {
+      if (this.totalCount !== 0) {
+        this.tableData = []
+        this.totalCount = 0
+        this.totalMoney = 0
+        this.$message({
+          message: '订单已生成，买买买是最开心的事情~',
+          type: 'success'
+        })
+      } else {
+        this.$message.error('怎么可以什么都没有呢？要不买个煎饼走吧！')
+      }
+    },
+    // 汇总数量金额
+    getAllMoney () {
+      this.totalCount = 0
+      this.totalMoney = 0
+      if (this.tableData) {
+        // 进行数量和价格的汇总计算
+        this.tableData.forEach(element => {
+          this.totalCount += element.count
+          this.totalMoney = this.totalMoney + element.price * element.count
+        })
       }
     }
   }
@@ -194,6 +275,7 @@ export default {
   border: 1px solid #e5e9f2;
   padding: 10px;
   margin: 10px;
+  cursor: pointer;
 }
 
 .o-price {
@@ -216,6 +298,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 }
 
 .foodImg {
@@ -235,5 +318,10 @@ export default {
 }
 .foodPrice {
   font-size: 12px;
+}
+
+.totalDiv {
+  border-bottom: 1px solid #d3dce6;
+  padding: 10px;
 }
 </style>
